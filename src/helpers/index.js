@@ -7,7 +7,8 @@ export function mappingPostData(item) {
     publishedDate: item.date,
     authorData: item.author_data,
     categoryIds: item.categories,
-    slug: item.slug
+    slug: item.slug,
+    content: item.content
   };
 }
 
@@ -15,6 +16,7 @@ export function mappingCategoryData(item) {
   return {
     id: item.id,
     name: item.name,
+    slug: item.slug
   };
 }
 

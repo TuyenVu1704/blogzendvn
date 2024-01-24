@@ -15,7 +15,14 @@ const initialState = {
     currentPage: 1,
     totalPages: 0,
     total: 0
-  }
+  },
+  postCategory: {
+    list: [],
+    currentPage: 1,
+    totalPages: 0,
+    total: 0
+  },
+  postDetail: null
 };
 
 export const fetchPostsLatest = createAsyncThunk('post/fetchLatest', async () => {
@@ -58,16 +65,44 @@ export const fetchPostsGeneral = createAsyncThunk('post/fetchGeneral', async (pa
 export const fetchPostsSearch = createAsyncThunk('post/fetchPostsSearch', async (params = {}) => {
   try {
     const res = await postService.getSearch(params);
-    console.log(res);
     const totalPages = parseInt(res.headers['x-wp-totalpages']);
     const total = parseInt(res.headers['x-wp-total']);
     const list = res.data.map(mappingPostData);
+
     return {
       list,
       totalPages,
       total,
       currentPage: params.page,
     };
+  } catch (err) {
+    console.log(err);
+  }
+});
+export const fetchPostsCategoryById = createAsyncThunk('post/fetchPostsCategoryById', async (params = {}) => {
+  try {
+    const res = await postService.getCategoryById(params);
+    const totalPages = parseInt(res.headers['x-wp-totalpages']);
+    const total = parseInt(res.headers['x-wp-total']);
+    const list = res.data.map(mappingPostData);
+
+    return {
+      list,
+      totalPages,
+      total,
+      currentPage: params.page,
+    };
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+export const fetchPostsDetailBySlug = createAsyncThunk('post/fetchPostsDetailBySlug', async (params) => {
+  try {
+    const res = await postService.getPostDetailBySlug(params);
+    const items = res.data.map(mappingPostData);
+
+    return items;
   } catch (err) {
     console.log(err);
   }
@@ -101,6 +136,24 @@ const postSlice = createSlice({
         ...state.postSearch,
         ...payload,
         list: payload.currentPage === 1 ? payload.list : [...state.postSearch.list, ...payload.list],
+      };
+    });
+    builder.addCase(fetchPostsCategoryById.fulfilled, (state, action) => {
+      const payload = action.payload;
+
+      state.postCategory = {
+        ...state.postCategory,
+        ...payload,
+        list: payload.currentPage === 1 ? payload.list : [...state.postCategory.list, ...payload.list],
+      };
+    });
+    builder.addCase(fetchPostsDetailBySlug.fulfilled, (state, action) => {
+      const payload = action.payload[0];
+
+      state.postDetail = {
+
+        ...payload
+
       };
     });
   },

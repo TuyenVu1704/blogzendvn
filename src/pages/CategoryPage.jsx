@@ -1,32 +1,36 @@
-import { useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import ArticleItem from '../components/ArticleItem';
 import Button from '../components/shared/Button';
 import MainTitle from '../components/shared/MainTitle';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
-import { fetchPostsSearch } from '../store/postSlice';
+import { fetchPostsCategoryById } from '../store/postSlice';
+import { fetchCategoriesBySlug } from '../store/categorySlice'
 
-
-function SearchPage() {
-
-  const [searchParams] = useSearchParams()
-  const keyword = searchParams.get('keyword')
-  const data = useSelector(state => state.POST.postSearch)
-  const currentPage = useSelector((state) => state.POST.postSearch.currentPage);
-  const totalPages = useSelector((state) => state.POST.postSearch.totalPages);
-  const total = useSelector((state) => state.POST.postSearch.total);
+function CategoryPage
+  () {
+  const params = useParams()
+  const { slug } = params
+  const dispatch = useDispatch();
+  const data = useSelector(state => state.POST.postCategory)
+  const currentPage = useSelector((state) => state.POST.postCategory.currentPage);
+  const totalPages = useSelector((state) => state.POST.postCategory.totalPages);
+  const total = useSelector((state) => state.POST.postCategory.total);
   const [loading, setLoading] = useState(false);
+  const [categoryId, setCategoryId] = useState()
+  useEffect(() => {
+    dispatch(fetchCategoriesBySlug(slug)).then((res) => {
+      const categoryId = res.payload.data[0].id
+      setCategoryId(categoryId)
+      dispatch(fetchPostsCategoryById({ categories: categoryId, page: 1 }))
+    })
+  }, [slug])
 
   const hasMorePost = currentPage < totalPages;
 
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(fetchPostsSearch({ search: keyword, page: 1 }))
-  }, [keyword])
-
   function handleLoadMore() {
     setLoading(true);
-    dispatch(fetchPostsSearch({ search: keyword, page: currentPage + 1 })).then((res) => {
+    dispatch(fetchPostsCategoryById({ categories: categoryId, page: currentPage + 1 })).then((res) => {
       setLoading(false);
     });
   }
@@ -34,7 +38,7 @@ function SearchPage() {
   return (
     <div className="articles-list section">
       <div className="tcl-container">
-        <MainTitle type="search">{total} kết quả tìm kiếm với từ khóa {keyword} </MainTitle>
+        <MainTitle type="search">{total} kết quả tìm kiếm  </MainTitle>
 
         <div className="tcl-row tcl-jc-center">
           {
@@ -60,4 +64,5 @@ function SearchPage() {
   );
 }
 
-export default SearchPage;
+export default CategoryPage
+  ;

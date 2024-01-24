@@ -4,6 +4,7 @@ import categoryService from '../services/categoryService';
 
 const initialState = {
   categories: [],
+  categoryBySlug: {}
 };
 
 const name = 'category';
@@ -17,6 +18,15 @@ export const fetchAllCategories = createAsyncThunk(`${name}/fetchAll`, async () 
   }
 });
 
+export const fetchCategoriesBySlug = createAsyncThunk(`${name}/fetchCategoriesBySlug`, async (slug) => {
+  try {
+    const res = await categoryService.getCategoryBySlug(slug);
+    return res
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 const categorySlice = createSlice({
   name,
   initialState: initialState,
@@ -24,6 +34,9 @@ const categorySlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(fetchAllCategories.fulfilled, (state, action) => {
       state.categories = action.payload;
+    });
+    builder.addCase(fetchCategoriesBySlug.fulfilled, (state, action) => {
+      state.categoryBySlug = action.payload;
     });
   },
 });
