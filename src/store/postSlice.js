@@ -22,7 +22,13 @@ const initialState = {
     totalPages: 0,
     total: 0
   },
-  postDetail: null
+  postDetail: null,
+  postRelated: {
+    list: [],
+    currentPage: 1,
+    totalPages: 0,
+    total: 0
+  },
 };
 
 export const fetchPostsLatest = createAsyncThunk('post/fetchLatest', async () => {
@@ -108,6 +114,26 @@ export const fetchPostsDetailBySlug = createAsyncThunk('post/fetchPostsDetailByS
   }
 });
 
+export const fetchPostsRelated = createAsyncThunk('post/fetchPostsRelated', async (params = {}) => {
+  try {
+
+    const res = await postService.getPostRelatedPost(params.author);
+    const totalPages = parseInt(res.headers['x-wp-totalpages']);
+    const total = parseInt(res.headers['x-wp-total']);
+    const listfilter = res.data.filter((item) => item.id !== params.id)
+    const list = listfilter.map(mappingPostData)
+
+    return {
+      list,
+      totalPages,
+      total,
+      currentPage: 1
+    };
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 
 const postSlice = createSlice({
   name: 'post',
@@ -154,6 +180,15 @@ const postSlice = createSlice({
 
         ...payload
 
+      };
+    });
+    builder.addCase(fetchPostsRelated.fulfilled, (state, action) => {
+      const payload = action.payload;
+
+      state.postRelated = {
+        ...state.postRelated,
+        ...payload,
+        list: payload.currentPage === 1 ? payload.list : [...state.postRelated.list, ...payload.list],
       };
     });
   },

@@ -8,7 +8,8 @@ export function mappingPostData(item) {
     authorData: item.author_data,
     categoryIds: item.categories,
     slug: item.slug,
-    content: item.content
+    content: item.content,
+    author: item.author
   };
 }
 

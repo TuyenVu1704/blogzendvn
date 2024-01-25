@@ -1,14 +1,14 @@
 import './related-posts.css';
 
-function ArticleRelated() {
+function ArticleRelated({ data }) {
   return (
     <article className="related-post__card">
       <a href="/" className="related-post__title">
-        5 BBQ Recipes to Get Your Summer Started
+        {data.title}
       </a>
       <div className="related-post__info">
         <a className="related-post__author" href="/">
-          John Smith
+          {data.authorData.nickname}
         </a>
         <p className="related-post__date">
           <svg

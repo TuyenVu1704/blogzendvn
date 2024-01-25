@@ -29,6 +29,9 @@ const postService = {
   },
   getPostDetailBySlug(slug) {
     return this.getAll({ slug });
+  },
+  getPostRelatedPost({ author, id }) {
+    return this.getAll({ per_page: 5, author });
   }
 };
 
